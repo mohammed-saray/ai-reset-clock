@@ -1,0 +1,9 @@
+{
+  "name": "ai-reset-clock",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "When does my Claude, ChatGPT/Codex or Gemini quota reset? Countdowns in your timezone.",
+  "scripts": { "test": "node --test" },
+  "license": "MIT"
+}

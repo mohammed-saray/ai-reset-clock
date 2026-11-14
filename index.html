@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Reset Clock</title>
+<meta name="description" content="When does my Claude, ChatGPT / Codex or Gemini usage limit reset? Live countdowns in your own timezone, reset alerts, and a token estimator. Free, no sign-in, nothing leaves your browser.">
+<meta property="og:title" content="AI Reset Clock — when does my AI quota reset?">
+<meta property="og:description" content="Countdowns for Claude 5-hour & weekly limits, Codex windows and Gemini's midnight-Pacific daily reset, in your timezone.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏳</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f5f1;--card:#ffffff;--ink:#1c1b19;--muted:#6b675f;--line:#e5e1d8;
+  --accent:#c2562e;--accent-soft:#f6e3da;--ok:#2f7d4f;--warn:#b7791f;
+  --claude:#c2562e;--codex:#10a37f;--gemini:#3d6be0;--custom:#7a5cc2;
+  --radius:14px;--shadow:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141312;--card:#1d1c1a;--ink:#f1eee8;--muted:#a29d93;--line:#2e2c29;--accent:#e57a52;--accent-soft:#3a251c;
+  --shadow:none;--claude:#e57a52;--codex:#35c79b;--gemini:#7d9cf0;--custom:#a68ae6}}
+:root[data-theme="dark"]{--bg:#141312;--card:#1d1c1a;--ink:#f1eee8;--muted:#a29d93;--line:#2e2c29;--accent:#e57a52;
+  --accent-soft:#3a251c;--shadow:none;--claude:#e57a52;--codex:#35c79b;--gemini:#7d9cf0;--custom:#a68ae6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,"IBM Plex Sans Arabic",system-ui,sans-serif}
+[dir="rtl"] body{font-family:"IBM Plex Sans Arabic",Inter,system-ui,sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 16px 64px}
+header{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:26px;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:6px 0 0;max-width:640px}
+.tools{display:flex;gap:8px}
+button,select,input,textarea{font:inherit;color:inherit}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.now{margin:22px 0 18px;display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:14px}
+.now b{color:var(--ink);font-family:"JetBrains Mono",monospace;font-weight:500}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);
+  border-top:3px solid var(--c,var(--accent));display:flex;flex-direction:column;gap:10px}
+.card h2{font-size:15px;margin:0;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.tag{font-size:11px;font-weight:600;color:var(--c);text-transform:uppercase;letter-spacing:.06em}
+.big{font-family:"JetBrains Mono",monospace;font-size:34px;line-height:1.1;letter-spacing:-.02em;direction:ltr;text-align:start}
+.big.done{color:var(--ok)}
+.when{color:var(--muted);font-size:13px}
+.bar{height:6px;border-radius:9px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c,var(--accent));width:0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row input,.row select{border:1px solid var(--line);background:transparent;border-radius:9px;padding:6px 8px;min-width:0;flex:1}
+.hint{font-size:12px;color:var(--muted)}
+.empty{color:var(--muted);font-size:14px}
+.x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 4px}
+section{margin-top:34px}
+section h3{font-size:17px;margin:0 0 10px}
+textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px;resize:vertical}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px}
+.stat b{font-family:"JetBrains Mono",monospace;font-size:16px;display:block}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:8px}
+.faq summary{cursor:pointer;font-weight:600}
+footer{margin-top:40px;color:var(--muted);font-size:13px}
+footer a,.faq a{color:var(--accent)}
+@media (max-width:520px){.big{font-size:28px}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 data-i="title">⏳ AI Reset Clock</h1>
+      <p class="sub" data-i="subtitle"></p>
+    </div>
+    <div class="tools">
+      <button class="btn" id="lang" aria-label="Language">العربية</button>
+      <button class="btn" id="theme" aria-label="Theme">◐</button>
+      <button class="btn primary" id="notify" data-i="notify"></button>
+    </div>
+  </header>
+
+  <div class="now">
+    <span><span data-i="yourTime"></span> <b id="local"></b> <span id="tz"></span></span>
+    <span><span data-i="pacific"></span> <b id="pt"></b></span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <section>
+    <h3 data-i="addTitle"></h3>
+    <div class="card" style="--c:var(--custom)">
+      <div class="row">
+        <input id="cName" data-ph="namePh">
+        <input id="cIn" data-ph="inPh" style="max-width:150px">
+      </div>
+      <div class="row">
+        <label class="hint" data-i="orAt"></label>
+        <input id="cAt" type="datetime-local">
+        <select id="cRepeat">
+          <option value="0" data-i="once"></option>
+          <option value="18000000" data-i="every5h"></option>
+          <option value="86400000" data-i="daily"></option>
+          <option value="604800000" data-i="weekly"></option>
+        </select>
+        <button class="btn primary" id="cAdd" data-i="add"></button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h3 data-i="tokTitle"></h3>
+    <textarea id="tok" data-ph="tokPh"></textarea>
+    <div class="stats" id="tokStats"></div>
+    <p class="hint" data-i="tokHint"></p>
+  </section>
+
+  <section class="faq">
+    <h3 data-i="faqTitle"></h3>
+    <div id="faq"></div>
+  </section>
+
+  <footer>
+    <span data-i="privacy"></span> ·
+    <a href="https://github.com/mohammed2345353/ai-reset-clock">GitHub</a> ·
+    <span data-i="suite"></span> <a href="https://github.com/mohammed2345353/burnrate">burnrate</a>,
+    <a href="https://github.com/mohammed2345353/ai-error-decoder">ai-error-decoder</a>,
+    <a href="https://github.com/mohammed2345353/ai-handoff">ai-handoff</a>
+  </footer>
+</div>
+
+<script type="module">
+import { nextPacificMidnight, fiveHourReset, nextWeekly, rollForward, parseDuration, formatLeft, estimateTokens }
+  from "./clock.js";
+
+const T = {
+  en: {
+    title: "⏳ AI Reset Clock",
+    subtitle: "When does my Claude, ChatGPT / Codex or Gemini limit reset? Live countdowns in your timezone. Set a timer once and it rolls forward by itself.",
+    notify: "🔔 Alert me", notifyOn: "🔔 Alerts on", yourTime: "Your time", pacific: "Pacific (Gemini reset):",
+    gemini: "Gemini daily quota", geminiNote: "Gemini API & Gemini CLI daily quotas (RPD) reset at midnight US Pacific Time.",
+    claude5: "Claude 5-hour window", claude5Note: "Starts with your first message, floored to the hour. Set the time of your first message, or the 'resets in' time shown in Claude.",
+    claudeW: "Claude weekly limit", claudeWNote: "Weekly caps reset at a fixed time each week. Copy it from claude.ai → Settings → Usage.",
+    codex5: "Codex 5-hour window", codex5Note: "Run /status in Codex and paste the time left (e.g. 2h 14m).",
+    codexW: "Codex weekly limit", codexWNote: "From Codex /status: the weekly window's reset.",
+    startNow: "I just started", firstMsg: "First message at", resetsIn: "resets in…", set: "Set", clear: "Clear",
+    notSet: "Not set", resetAt: "Resets", ready: "Reset! ✓", weekday: "Day",
+    addTitle: "Add your own timer", namePh: "Name (e.g. ChatGPT image limit)", inPh: "in… e.g. 3h", orAt: "or at",
+    once: "once", every5h: "every 5 h", daily: "daily", weekly: "weekly", add: "Add",
+    tokTitle: "How many tokens is this?", tokPh: "Paste a prompt, file or log…",
+    tokHint: "≈ estimate (Latin ~4 chars/token, Arabic ~2.5, CJK ~1.5). Real tokenizers differ by model.",
+    tokens: "tokens", of: "of", privacy: "Runs entirely in your browser. Nothing is sent anywhere.",
+    suite: "More tools:", faqTitle: "FAQ",
+    faq: [
+      ["Why does Gemini reset at a strange hour for me?", "Google resets daily quotas at midnight Pacific Time (UTC−8 in winter, UTC−7 in summer). In Baghdad that's 11:00 or 10:00 the next morning. This page converts it for you."],
+      ["Do Claude limits reset at midnight?", "No. Pro/Max plans use a rolling 5-hour session window that starts with your first message, plus weekly caps. Claude Code and claude.ai share the same limits."],
+      ["I bought API credits but I'm still blocked.", "Subscription limits (Claude Pro/Max, ChatGPT Plus/Pro for Codex) and API credits are separate. Paste the error into <a href='https://github.com/mohammed2345353/ai-error-decoder'>ai-error-decoder</a> to see which one you hit."],
+      ["Can I see this coming?", "Yes: <a href='https://github.com/mohammed2345353/burnrate'>burnrate</a> reads your local Claude Code and Codex logs and forecasts when you'll hit the window."],
+    ],
+  },
+  ar: {
+    title: "⏳ ساعة تصفير الذكاء الاصطناعي",
+    subtitle: "متى تتصفّر حدود Claude أو ChatGPT / Codex أو Gemini؟ عدّاد مباشر بتوقيتك المحلي. اضبط المؤقت مرة واحدة ويتجدد تلقائيًا.",
+    notify: "🔔 نبّهني", notifyOn: "🔔 التنبيهات مفعّلة", yourTime: "توقيتك", pacific: "توقيت المحيط الهادئ (تصفير Gemini):",
+    gemini: "حصة Gemini اليومية", geminiNote: "حصص Gemini API و Gemini CLI اليومية تتصفّر عند منتصف الليل بتوقيت المحيط الهادئ الأمريكي.",
+    claude5: "نافذة Claude لخمس ساعات", claude5Note: "تبدأ مع أول رسالة (مقرّبة للساعة). أدخل وقت أول رسالة، أو المدة المتبقية الظاهرة في Claude.",
+    claudeW: "حد Claude الأسبوعي", claudeWNote: "الحد الأسبوعي يتصفّر بوقت ثابت كل أسبوع. انسخه من claude.ai ← الإعدادات ← الاستخدام.",
+    codex5: "نافذة Codex لخمس ساعات", codex5Note: "شغّل ‎/status‎ في Codex والصق المدة المتبقية (مثل 2h 14m).",
+    codexW: "حد Codex الأسبوعي", codexWNote: "من ‎/status‎ في Codex: وقت تصفير النافذة الأسبوعية.",
+    startNow: "بدأت الآن", firstMsg: "أول رسالة الساعة", resetsIn: "يتصفّر بعد…", set: "ضبط", clear: "مسح",
+    notSet: "غير مضبوط", resetAt: "يتصفّر", ready: "تصفّر! ✓", weekday: "اليوم",
+    addTitle: "أضف مؤقتك الخاص", namePh: "الاسم (مثلاً: حد صور ChatGPT)", inPh: "بعد… مثل 3h", orAt: "أو في",
+    once: "مرة واحدة", every5h: "كل 5 ساعات", daily: "يوميًا", weekly: "أسبوعيًا", add: "إضافة",
+    tokTitle: "كم توكن هذا النص؟", tokPh: "الصق برومبت أو ملف أو سجل…",
+    tokHint: "≈ تقدير (اللاتينية ~4 أحرف/توكن، العربية ~2.5، الصينية ~1.5). العدد الحقيقي يختلف حسب النموذج.",
+    tokens: "توكن", of: "من", privacy: "يعمل بالكامل داخل متصفحك. لا يُرسل أي شيء.",
+    suite: "أدوات أخرى:", faqTitle: "أسئلة شائعة",
+    faq: [
+      ["ليش Gemini يتصفّر بساعة غريبة عندي؟", "جوجل تصفّر الحصص اليومية عند منتصف الليل بتوقيت المحيط الهادئ (UTC−8 شتاءً، UTC−7 صيفًا). يعني ببغداد الساعة 11:00 أو 10:00 الصبح. الصفحة تحوّلها لك تلقائيًا."],
+      ["حدود Claude تتصفّر بمنتصف الليل؟", "لا. خطط Pro/Max تستخدم نافذة متحركة لخمس ساعات تبدأ مع أول رسالة، إضافة لحد أسبوعي. Claude Code و claude.ai يشتركون بنفس الحدود."],
+      ["اشتريت رصيد API وبعدني محظور.", "حدود الاشتراك (Claude Pro/Max، ChatGPT Plus/Pro لـ Codex) منفصلة عن رصيد الـ API. الصق رسالة الخطأ في <a href='https://github.com/mohammed2345353/ai-error-decoder'>ai-error-decoder</a> حتى تعرف أي حد وصلت له."],
+      ["أقدر أعرف قبل لا أوصل للحد؟", "نعم: <a href='https://github.com/mohammed2345353/burnrate'>burnrate</a> يقرأ سجلات Claude Code و Codex المحلية ويتوقع متى توصل للحد."],
+    ],
+  },
+};
+const DAYS = { en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], ar: ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"] };
+
+// ---------- storage (best effort) ----------
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("arc:" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("arc:" + k, JSON.stringify(v)); } catch {} },
+};
+let lang = store.get("lang", (navigator.language || "en").startsWith("ar") ? "ar" : "en");
+let timers = store.get("timers", {});      // id -> {at, every}
+let custom = store.get("custom", []);      // [{id,name,at,every}]
+const fired = new Set();
+const t = (k) => T[lang][k] ?? T.en[k];
+
+const BUILTIN = [
+  { id: "gemini", c: "--gemini", tag: "Google", name: "gemini", note: "geminiNote", auto: true, every: 864e5 },
+  { id: "claude5", c: "--claude", tag: "Anthropic", name: "claude5", note: "claude5Note", every: 5 * 36e5, mode: "first" },
+  { id: "claudeW", c: "--claude", tag: "Anthropic", name: "claudeW", note: "claudeWNote", every: 6048e5, mode: "weekly" },
+  { id: "codex5", c: "--codex", tag: "OpenAI", name: "codex5", note: "codex5Note", every: 5 * 36e5, mode: "in" },
+  { id: "codexW", c: "--codex", tag: "OpenAI", name: "codexW", note: "codexWNote", every: 6048e5, mode: "weekly" },
+];
+
+function resetOf(b, now) {
+  if (b.auto) return nextPacificMidnight(now);
+  const s = timers[b.id];
+  return s ? rollForward(s.at, s.every, now) : null;
+}
+
+function fmtTime(d) {
+  return d.toLocaleString(lang === "ar" ? "ar-IQ" : undefined, { weekday: "short", hour: "2-digit", minute: "2-digit",
+    month: "short", day: "numeric" });
+}
+
+function controls(b) {
+  if (b.auto) return "";
+  if (b.mode === "first") return `
+    <div class="row"><button class="btn" data-act="now" data-id="${b.id}">${t("startNow")}</button>
+      <span class="hint">${t("firstMsg")}</span><input type="time" data-first="${b.id}"></div>
+    <div class="row"><input data-in="${b.id}" placeholder="${t("resetsIn")}"><button class="btn" data-act="in" data-id="${b.id}">${t("set")}</button>
+      <button class="x" data-act="clear" data-id="${b.id}" title="${t("clear")}">✕</button></div>`;
+  if (b.mode === "weekly") return `
+    <div class="row"><select data-wd="${b.id}">${DAYS[lang].map((d, i) => `<option value="${i}">${d}</option>`).join("")}</select>
+      <input type="time" data-wt="${b.id}" value="09:00"><button class="btn" data-act="weekly" data-id="${b.id}">${t("set")}</button>
+      <button class="x" data-act="clear" data-id="${b.id}" title="${t("clear")}">✕</button></div>`;
+  return `<div class="row"><input data-in="${b.id}" placeholder="${t("resetsIn")}"><button class="btn" data-act="in" data-id="${b.id}">${t("set")}</button>
+      <button class="x" data-act="clear" data-id="${b.id}" title="${t("clear")}">✕</button></div>`;
+}
+
+function build() {
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.getElementById("lang").textContent = lang === "ar" ? "English" : "العربية";
+  document.querySelectorAll("[data-i]").forEach((el) => { el.textContent = t(el.dataset.i); });
+  document.querySelectorAll("[data-ph]").forEach((el) => { el.placeholder = t(el.dataset.ph); });
+  document.getElementById("notify").textContent = (window.Notification && Notification.permission === "granted") ? t("notifyOn") : t("notify");
+  const cards = BUILTIN.map((b) => `
+    <article class="card" style="--c:var(${b.c})">
+      <h2>${t(b.name)} <span class="tag">${b.tag}</span></h2>
+      <div class="big" id="big-${b.id}">—</div>
+      <div class="bar"><i id="bar-${b.id}"></i></div>
+      <div class="when" id="when-${b.id}"></div>
+      ${controls(b)}
+      <div class="hint">${t(b.note)}</div>
+    </article>`);
+  const mine = custom.map((c) => `
+    <article class="card" style="--c:var(--custom)">
+      <h2>${escapeHtml(c.name)} <button class="x" data-act="del" data-id="${c.id}" aria-label="remove">✕</button></h2>
+      <div class="big" id="big-${c.id}">—</div>
+      <div class="bar"><i id="bar-${c.id}"></i></div>
+      <div class="when" id="when-${c.id}"></div>
+    </article>`);
+  document.getElementById("grid").innerHTML = cards.concat(mine).join("");
+  document.getElementById("faq").innerHTML = t("faq").map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("");
+  tokenStats();
+  tick();
+}
+
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]); }
+
+function paint(id, at, every, now) {
+  const big = document.getElementById("big-" + id), when = document.getElementById("when-" + id), bar = document.getElementById("bar-" + id);
+  if (!big) return null;
+  if (!at) { big.textContent = "—"; big.classList.remove("done"); when.textContent = t("notSet"); bar.style.width = "0"; return null; }
+  const left = at - now;
+  big.textContent = left > 0 ? formatLeft(left) : t("ready");
+  big.classList.toggle("done", left <= 0);
+  when.textContent = `${t("resetAt")}: ${fmtTime(at)}`;
+  bar.style.width = every ? `${Math.max(0, Math.min(100, 100 - (left / every) * 100))}%` : "0";
+  return left;
+}
+
+function tick() {
+  const now = new Date();
+  document.getElementById("local").textContent = now.toLocaleTimeString(lang === "ar" ? "ar-IQ" : undefined);
+  document.getElementById("tz").textContent = `(${Intl.DateTimeFormat().resolvedOptions().timeZone})`;
+  document.getElementById("pt").textContent = now.toLocaleTimeString("en-US", { timeZone: "America/Los_Angeles", hour: "2-digit", minute: "2-digit" });
+  let soonest = null;
+  const consider = (name, id, at, every) => {
+    const left = paint(id, at, every, now);
+    if (left !== null && left > 0 && (!soonest || left < soonest.left)) soonest = { name, left };
+    if (left !== null && left <= 0 && left > -1500) alertOnce(id, name);
+  };
+  BUILTIN.forEach((b) => consider(t(b.name), b.id, resetOf(b, now), b.every));
+  custom.forEach((c) => {
+    const at = c.every ? rollForward(c.at, c.every, now) : new Date(c.at);
+    consider(c.name, c.id, at, c.every || Math.max(new Date(c.at) - new Date(c.created || c.at), 1));
+  });
+  document.title = soonest ? `${formatLeft(soonest.left)} · ${soonest.name}` : "AI Reset Clock";
+}
+
+function alertOnce(id, name) {
+  const key = id + ":" + Math.floor(Date.now() / 60000);
+  if (fired.has(key)) return;
+  fired.add(key);
+  try { if (window.Notification && Notification.permission === "granted") new Notification("⏳ " + name, { body: t("ready") }); } catch {}
+}
+
+function save() { store.set("timers", timers); store.set("custom", custom); }
+
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  const id = el.dataset.id, b = BUILTIN.find((x) => x.id === id), now = new Date();
+  if (el.dataset.act === "now") timers[id] = { at: fiveHourReset(now).toISOString(), every: b.every };
+  if (el.dataset.act === "in") {
+    const ms = parseDuration(document.querySelector(`[data-in="${id}"]`).value);
+    if (ms == null) return;
+    timers[id] = { at: new Date(now.getTime() + ms).toISOString(), every: b.every };
+  }
+  if (el.dataset.act === "weekly") {
+    const wd = +document.querySelector(`[data-wd="${id}"]`).value;
+    const [hh, mm] = (document.querySelector(`[data-wt="${id}"]`).value || "09:00").split(":").map(Number);
+    timers[id] = { at: nextWeekly(wd, hh, mm, now).toISOString(), every: b.every };
+  }
+  if (el.dataset.act === "clear") delete timers[id];
+  if (el.dataset.act === "del") custom = custom.filter((c) => c.id !== id);
+  save(); build();
+});
+
+document.addEventListener("change", (e) => {
+  const id = e.target.dataset.first;
+  if (!id || !e.target.value) return;
+  const [hh, mm] = e.target.value.split(":").map(Number);
+  const first = new Date(); first.setHours(hh, mm, 0, 0);
+  if (first > new Date()) first.setDate(first.getDate() - 1);
+  timers[id] = { at: fiveHourReset(first).toISOString(), every: 5 * 36e5 };
+  save(); build();
+});
+
+document.getElementById("cAdd").addEventListener("click", () => {
+  const name = document.getElementById("cName").value.trim() || "Timer";
+  const ms = parseDuration(document.getElementById("cIn").value);
+  const atVal = document.getElementById("cAt").value;
+  const now = new Date();
+  const at = ms != null ? new Date(now.getTime() + ms) : atVal ? new Date(atVal) : null;
+  if (!at) return;
+  custom.push({ id: "c" + now.getTime(), name, at: at.toISOString(), every: +document.getElementById("cRepeat").value, created: now.toISOString() });
+  save(); build();
+});
+
+document.getElementById("lang").addEventListener("click", () => { lang = lang === "ar" ? "en" : "ar"; store.set("lang", lang); build(); });
+document.getElementById("theme").addEventListener("click", () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  root.dataset.theme = dark ? "light" : "dark"; store.set("theme", root.dataset.theme);
+});
+const savedTheme = store.get("theme", null); if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+document.getElementById("notify").addEventListener("click", async () => {
+  if (!window.Notification) return;
+  try { await Notification.requestPermission(); } catch {}
+  build();
+});
+
+function tokenStats() {
+  const text = document.getElementById("tok").value;
+  const n = estimateTokens(text);
+  const windows = [["128K", 128e3], ["200K", 2e5], ["1M", 1e6]];
+  document.getElementById("tokStats").innerHTML = `<div class="stat"><b>≈ ${n.toLocaleString()}</b>${t("tokens")}</div>` +
+    windows.map(([l, w]) => `<div class="stat"><b>${(100 * n / w).toFixed(n && n < w / 1000 ? 2 : 1)}%</b>${t("of")} ${l}</div>`).join("") +
+    `<div class="stat"><b>${[...text].length.toLocaleString()}</b>chars</div>`;
+}
+document.getElementById("tok").addEventListener("input", tokenStats);
+
+build();
+setInterval(tick, 1000);
+</script>
+</body>
+</html>
