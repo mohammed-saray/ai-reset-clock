@@ -2,9 +2,9 @@
 
 **When does my Claude, ChatGPT / Codex or Gemini limit reset? Live countdowns in your own timezone, with alerts, in English and العربية.**
 
-### 👉 [Open the clock](https://mohammed2345353.github.io/ai-reset-clock/)
+### 👉 [Open the clock](https://mohammed-saray.github.io/ai-reset-clock/)
 
-[![CI](https://github.com/mohammed2345353/ai-reset-clock/actions/workflows/ci.yml/badge.svg)](https://github.com/mohammed2345353/ai-reset-clock/actions/workflows/ci.yml)
+[![CI](https://github.com/mohammed-saray/ai-reset-clock/actions/workflows/ci.yml/badge.svg)](https://github.com/mohammed-saray/ai-reset-clock/actions/workflows/ci.yml)
 ![No build](https://img.shields.io/badge/build-none-brightgreen)
 ![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
@@ -37,7 +37,7 @@ So people keep asking "when can I use it again?" and doing timezone math by hand
 ## Run locally
 
 ```bash
-git clone https://github.com/mohammed2345353/ai-reset-clock
+git clone https://github.com/mohammed-saray/ai-reset-clock
 cd ai-reset-clock
 python -m http.server 8000   # ES modules need http://, not file://
 # open http://localhost:8000
@@ -51,7 +51,7 @@ Tests (Node 18+): `node --test`
 
 ## Limitations
 
-- Claude and Codex don't expose your reset time to web pages, so you enter it once from `/usage` or `/status`. To read it automatically from local logs, use [burnrate](https://github.com/mohammed2345353/burnrate).
+- Claude and Codex don't expose your reset time to web pages, so you enter it once from `/usage` or `/status`. To read it automatically from local logs, use [burnrate](https://github.com/mohammed-saray/burnrate).
 - Providers change their reset rules. Open an issue if one changes.
 
 ## Roadmap
@@ -66,15 +66,15 @@ Small, dependency-free tools for people fighting AI usage limits:
 
 | Tool | What it does |
 |---|---|
-| [burnrate](https://github.com/mohammed2345353/burnrate) | Forecast Claude Code / Codex limits from local logs |
-| [context-diet](https://github.com/mohammed2345353/context-diet) | Find the CLAUDE.md / AGENTS.md / GEMINI.md bloat you pay for on every message |
-| [ai-handoff](https://github.com/mohammed2345353/ai-handoff) | Hit a limit? Move the task to another AI with a handoff file |
-| [ai-error-decoder](https://github.com/mohammed2345353/ai-error-decoder) | Explain 429 / 529 / quota errors from Anthropic, OpenAI and Gemini |
-| [ratelimit-retry](https://github.com/mohammed2345353/ratelimit-retry) | Retry that respects provider rate-limit headers (JS) |
-| [chat-export-md](https://github.com/mohammed2345353/chat-export-md) | ChatGPT / Claude / Gemini exports → Markdown |
-| [mcp-token-audit](https://github.com/mohammed2345353/mcp-token-audit) | Measure how many tokens each MCP server's tools cost |
-| [logslim](https://github.com/mohammed2345353/logslim) | Shrink logs and stack traces before pasting them into a chat |
-| [chunkwise](https://github.com/mohammed2345353/chunkwise) | Split big files into token-budgeted chunks with continuation prompts |
+| [burnrate](https://github.com/mohammed-saray/burnrate) | Forecast Claude Code / Codex limits from local logs |
+| [context-diet](https://github.com/mohammed-saray/context-diet) | Find the CLAUDE.md / AGENTS.md / GEMINI.md bloat you pay for on every message |
+| [ai-handoff](https://github.com/mohammed-saray/ai-handoff) | Hit a limit? Move the task to another AI with a handoff file |
+| [ai-error-decoder](https://github.com/mohammed-saray/ai-error-decoder) | Explain 429 / 529 / quota errors from Anthropic, OpenAI and Gemini |
+| [ratelimit-retry](https://github.com/mohammed-saray/ratelimit-retry) | Retry that respects provider rate-limit headers (JS) |
+| [chat-export-md](https://github.com/mohammed-saray/chat-export-md) | ChatGPT / Claude / Gemini exports → Markdown |
+| [mcp-token-audit](https://github.com/mohammed-saray/mcp-token-audit) | Measure how many tokens each MCP server's tools cost |
+| [logslim](https://github.com/mohammed-saray/logslim) | Shrink logs and stack traces before pasting them into a chat |
+| [chunkwise](https://github.com/mohammed-saray/chunkwise) | Split big files into token-budgeted chunks with continuation prompts |
 | **ai-reset-clock** | When does my quota reset? A countdown in your timezone |
 
 ## Contributing
